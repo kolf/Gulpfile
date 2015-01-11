@@ -6,10 +6,11 @@ var gulp = require('gulp'),
 	minify = require('gulp-minify-css'),
 	rename = require('gulp-rename'),
 	jade = require("gulp-jade"),
-    coffee = require('gulp-coffee'),
+	coffee = require('gulp-coffee'),
 	stylus = require('gulp-stylus'),
 	imagemin = require("gulp-imagemin"),
 	pngquant = require('imagemin-pngquant'),
+	jpegtran = require('imagemin-jpegtran'),
 	spritesmith = require("gulp.spritesmith"),
 	browserSync = require('browser-sync');
 /*
@@ -68,7 +69,7 @@ gulp.task("browser-sync", function() {
 # Сжатие картинок
 # ===============================================
 */
-gulp.task('imgmin', function () {
+gulp.task('pngopt', function () {
     return gulp.src('../src/img-out/*.png')
 		.pipe(plumber())
         .pipe(imagemin({
@@ -77,7 +78,13 @@ gulp.task('imgmin', function () {
             use: [pngquant()]
         }))
         .pipe(gulp.dest('../public/images/design'))
-		.pipe(notify("Images optimized"));
+		.pipe(notify("PNG optimized"));
+});
+gulp.task('jpgopt', function () {
+    return gulp.src('../src/img-out/*.jpg')
+        .pipe(jpegtran({ progressive: true })())
+        .pipe(gulp.dest('../public/images/design'))
+        .pipe(notify("JPG optimized"));
 });  
 /*    
 # ==============================================================
@@ -134,8 +141,9 @@ gulp.task('watch', function() {
 	gulp.watch('../src/templates/**/*.jade', ['jade']);
 	gulp.watch('../src/stylus/**/*.styl', ['stylus']);		
 	gulp.watch('../src/coffee/**/*.coffee', ['coffee']);
-	gulp.watch('../src/img-out/*.png', ['imgmin']);
+	gulp.watch('../src/img-out/*.png', ['pngopt']);
+	gulp.watch('../src/img-out/*.jpg', ['jpgopt']);
   
 });
 
-gulp.task('default', ['imgmin','jade','stylus','coffee','browser-sync','watch']);
+gulp.task('default', ['pngopt','jpgopt','jade','stylus','coffee','browser-sync','watch']);
